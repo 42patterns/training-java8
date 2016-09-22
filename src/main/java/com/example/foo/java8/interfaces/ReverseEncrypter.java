@@ -6,16 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 public class ReverseEncrypter implements Encrypter {
 
-	@Override
-	public byte[] encode(byte[] bytes) {
-		final byte[] result = new byte[bytes.length];
-		for (int i = 0; i < bytes.length; ++i) {
-			result[i] = (byte) (0xFF - bytes[i]);
-		}
-		return result;
-	}
+    @Override
+    public Function<Byte, Byte> function() {
+        return (a) -> (byte) (0xFF - a);
+    }
 
 }

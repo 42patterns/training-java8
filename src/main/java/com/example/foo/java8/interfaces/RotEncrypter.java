@@ -6,16 +6,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.function.Function;
 
 public class RotEncrypter implements Encrypter {
 
-	@Override
-	public byte[] encode(byte[] bytes) {
-		final byte[] result = new byte[bytes.length];
-		for (int i = 0; i < bytes.length; ++i) {
-			result[i] = (byte) (bytes[i] + 13);
-		}
-		return result;
-	}
+    @Override
+    public Function<Byte, Byte> function() {
+        return (b) -> (byte) (b + 13);
+    }
 
 }
