@@ -1,0 +1,9 @@
+= Java8 Workshop
+
+This repository contains code for Java8 workshop
+
+This code cotains, is inspired or uses code from following workshops or repositories:
+
+* link:http://osherove.com/tdd-kata-1/[Roy Osherove TDD Kata]
+* link:https://github.com/nurkiewicz/java8-workshop[Tomek's Nurkiewicz Java8 Workshop]
+* link:https://github.com/JavaCodeKata/stream-lambda[JavaCodeKata]
