@@ -1,10 +1,14 @@
 package com.example.foo.java8;
 
+import junitparams.Parameters;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -47,7 +51,7 @@ public class J05b_StreamReduceTest {
 		final List<Integer> input = Arrays.asList(4, 2, 6, 3, 8, 1);
 
 		//when
-		final int max = 0;  //input.stream()...
+		final int max = input.stream().reduce(0, (acc, x) -> (x > acc)?x:acc);
 
 		//then
 		assertThat(max).isEqualTo(8);
@@ -59,7 +63,18 @@ public class J05b_StreamReduceTest {
 		final List<Integer> input = Arrays.asList(2, 3, 5, 7);
 
 		//when
-		final List<Integer> doubledPrimes = null;   //input.stream()...
+		final List<Integer> doubledPrimes = input.stream()
+				.reduce(Collections.emptyList(),
+						(list, x) -> {
+							List<Integer> resultList = new ArrayList<>(list);
+							resultList.add(x * 2);
+							return resultList;
+						},
+						(list1, list2) -> {
+							List<Integer> resultList = new ArrayList<>(list1);
+							resultList.addAll(list2);
+							return resultList;
+						});
 
 		//then
 		assertThat(doubledPrimes).containsExactly(2 * 2, 3 * 2, 5 * 2, 7 * 2);
@@ -71,7 +86,21 @@ public class J05b_StreamReduceTest {
 		final List<Integer> input = Arrays.asList(2, 3, 4, 5, 6);
 
 		//when
-		final List<Integer> onlyEvenNumbers = null;   //input.stream()...
+		final List<Integer> onlyEvenNumbers = input.stream()
+				.reduce(Collections.emptyList(),
+						(list, x) -> {
+							List<Integer> resultList = new ArrayList<>(list);
+							if (x % 2 == 0) {
+								resultList.add(x);
+							}
+							return resultList;
+						},
+						(list1, list2) -> {
+							List<Integer> resultList = new ArrayList<>(list1);
+							resultList.addAll(list2);
+							return resultList;
+						}
+				);
 
 		//then
 		assertThat(onlyEvenNumbers).containsExactly(2, 4, 6);
