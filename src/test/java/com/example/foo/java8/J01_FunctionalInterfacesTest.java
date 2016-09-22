@@ -27,7 +27,7 @@ public class J01_FunctionalInterfacesTest {
 	public void testActionListenerLambda() {
 		//given
 		final Date dateMock = mock(Date.class);
-		final ActionListener listener = null;
+		final ActionListener listener = e -> dateMock.setTime(1000L);
 
 		//when
 		listener.actionPerformed(null);
@@ -40,7 +40,7 @@ public class J01_FunctionalInterfacesTest {
 	public void testRunnableLambda() {
 		//given
 		final Date dateMock = mock(Date.class);
-		Runnable block = null;
+		Runnable block = () -> dateMock.setTime(1000L);
 
 		//when
 		block.run();
@@ -51,7 +51,7 @@ public class J01_FunctionalInterfacesTest {
 
 	@Test
 	public void testComparatorLambda() {
-		final Comparator<String> stringLengthComparator = null;
+		final Comparator<String> stringLengthComparator = (s1, s2) -> Integer.compare(s1.length(), s2.length());
 
 		assertThat(stringLengthComparator.compare("abc", "def")).isZero();
 		assertThat(stringLengthComparator.compare("abc", "defg")).isLessThan(0);
@@ -60,9 +60,9 @@ public class J01_FunctionalInterfacesTest {
 
 	@Test
 	public void testCustomFunctionalInterface() {
-		final RandomSource source = null;
+		final RandomSource source = () -> 1;
 
-		Supplier<Integer> sourceSupplier = null;
+		Supplier<Integer> sourceSupplier = () -> source.oneOrMinusOne();
 
 		assertThat(source.oneOrMinusOne()).isIn(-1, 1);
 		assertThat(sourceSupplier.get()).isIn(-1, 1);
@@ -70,3 +70,4 @@ public class J01_FunctionalInterfacesTest {
 
 }
 
+	
