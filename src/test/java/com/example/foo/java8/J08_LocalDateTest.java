@@ -10,7 +10,10 @@ import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.util.stream.Stream;
 
-import static java.time.Month.*;
+import static java.time.DayOfWeek.WEDNESDAY;
+import static java.time.Month.DECEMBER;
+import static java.time.Month.MAY;
+import static java.time.Month.SEPTEMBER;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @Ignore
@@ -25,7 +28,12 @@ public class J08_LocalDateTest {
 	@Test
 	public void shouldCountNumberOfHolidaysIn2014() throws Exception {
 		//given
-		final Stream<LocalDate> holidaysIn2014 = null;
+		final Stream<LocalDate> holidaysIn2014 = Stream
+				.iterate(
+						LocalDate.of(2014, Month.JANUARY, 1),
+						d -> d.plusDays(1))
+				.limit(Year.of(2014).length())
+				.filter(holidays::isHoliday);
 
 		//when
 		final long numberOfHolidays = holidaysIn2014.count();
@@ -43,7 +51,7 @@ public class J08_LocalDateTest {
 		final LocalDate today = LocalDate.of(2014, MAY, 12);
 
 		//when
-		final LocalDate previousWednesday = today;
+		final LocalDate previousWednesday = today.with(TemporalAdjusters.previous(WEDNESDAY));
 
 		//then
 		assertThat(previousWednesday).isEqualTo(LocalDate.of(2014, MAY, 7));
@@ -62,7 +70,10 @@ public class J08_LocalDateTest {
 	}
 
 	public TemporalAdjuster nextHoliday() {
-		throw new UnsupportedOperationException("nextHoliday()");
+        return temporal -> {
+            final LocalDate date = LocalDate.from(temporal);
+            return holidays.nextHolidayAfter(date);
+        };
 	}
 
 	/**
@@ -79,8 +90,11 @@ public class J08_LocalDateTest {
 		final ZonedDateTime birth = ZonedDateTime.of(dateOfBirth, timeOfBirth, ZoneId.of("Europe/Warsaw"));
 
 		//when
-		final ZonedDateTime billionSecondsLater = birth;
-		final int hourInTokyo = billionSecondsLater.getHour();
+        //when
+        final ZonedDateTime billionSecondsLater = birth.plusSeconds(1_000_000_000);
+        final int hourInTokyo = billionSecondsLater
+                .withZoneSameInstant(ZoneId.of("Asia/Tokyo"))
+                .getHour();
 
 		//then
 		final Period periodToBillionth = Period.between(
