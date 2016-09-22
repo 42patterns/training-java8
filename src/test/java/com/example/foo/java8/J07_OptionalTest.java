@@ -78,8 +78,15 @@ public class J07_OptionalTest {
 	 * TODO: Copy and refactor code from {@link #lookupAddressByIdOrNull}, but avoid nulls
 	 */
 	private Optional<String> tryLookupAddressById(int id) {
-        return Optional.empty(); // tryFindPerson(id).
-	}
+        return tryFindPerson(id)
+                .filter(p -> MALE.equals(p.getSex()))
+				.flatMap(this::tryLookupAddress)
+                .filter(s -> !s.isEmpty())
+                .map(String::trim)
+                ;
+
+
+    }
 
 	@Test
 	public void nulls() {
