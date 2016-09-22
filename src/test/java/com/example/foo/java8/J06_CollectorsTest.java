@@ -41,7 +41,9 @@ public class J06_CollectorsTest {
 	public void partitionByPeopleAboveAndBelow180CmHeight() throws IOException {
 		final List<Person> people = dao.loadPeopleDatabase();
 
-		final Map<Boolean, List<Person>> peopleByHeight = Collections.emptyMap(); // people.stream().
+		final Map<Boolean, List<Person>> peopleByHeight = people
+				.stream()
+				.collect(Collectors.partitioningBy(p -> p.getHeight() > 180));
 
 		final List<Person> tallPeople = peopleByHeight.get(true);
 		assertThat(tallPeople).hasSize(33);
@@ -54,7 +56,9 @@ public class J06_CollectorsTest {
 	public void groupPeopleByWeight() throws IOException {
 		final List<Person> people = dao.loadPeopleDatabase();
 
-		final Map<Integer, List<Person>> peopleByWeight = Collections.emptyMap(); // people.stream().
+		final Map<Integer, List<Person>> peopleByWeight = people
+				.stream()
+				.collect(groupingBy(Person::getWeight));
 
 		assertThat(peopleByWeight.get(46)).hasSize(1);
 		assertThat(peopleByWeight.get(70)).hasSize(2);
@@ -65,7 +69,9 @@ public class J06_CollectorsTest {
 	public void weightStatistics() throws IOException {
 		final List<Person> people = dao.loadPeopleDatabase();
 
-		final IntSummaryStatistics stats = new IntSummaryStatistics(); // people.stream().
+		final IntSummaryStatistics stats = people
+				.stream()
+				.collect(summarizingInt(Person::getWeight));
 
 		assertThat(stats.getCount()).isEqualTo(137);
 		assertThat(stats.getMin()).isEqualTo(46);
@@ -73,4 +79,5 @@ public class J06_CollectorsTest {
 		assertThat(stats.getSum()).isEqualTo(8998);
 		assertThat(stats.getAverage()).isEqualTo(65.8, offset(0.5));
 	}
+
 }
