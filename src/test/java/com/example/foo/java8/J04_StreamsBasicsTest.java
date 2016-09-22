@@ -1,11 +1,11 @@
 package com.example.foo.java8;
 
-import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.Test;
 
 import java.util.*;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -83,37 +83,27 @@ public class J04_StreamsBasicsTest {
 
     public static class ToUpperCase {
         public static List<String> transform(List<String> collection) {
-            List<String> coll = new ArrayList<>();
-            for (String element : collection) {
-                coll.add(element.toUpperCase());
-            }
-            return coll;
+            return collection.stream() // Convert collection to Stream
+                    .map(String::toUpperCase) // Convert each element to upper case
+                    .collect(toList()); // Collect results to a new list
         }
     }
 
     public static class FilterCollection {
 
         public static List<String> transform(List<String> collection) {
-            List<String> newCollection = new ArrayList<>();
-            for (String element : collection) {
-                if (element.length() < 4) {
-                    newCollection.add(element);
-                }
-            }
-            return newCollection;
+            return collection.stream() // Convert collection to Stream
+                    .filter(value -> value.length() < 4) // Filter elements with length smaller than 4 characters
+                    .collect(toList()); // Collect results to a new list
         }
     }
 
     public static class FlatCollection {
 
         public static List<String> transform(List<List<String>> collection) {
-            List<String> newCollection = new ArrayList<>();
-            for (List<String> subCollection : collection) {
-                for (String value : subCollection) {
-                    newCollection.add(value);
-                }
-            }
-            return newCollection;
+            return collection.stream() // Convert collection to Stream
+                    .flatMap(value -> value.stream()) // Replace list with stream
+                    .collect(toList()); // Collect results to a new list
         }
     }
 
@@ -150,49 +140,33 @@ public class J04_StreamsBasicsTest {
     public static class OldestPerson {
 
         public static Person getOldestPerson(List<Person> people) {
-            Person oldestPerson = new Person("", 0);
-            for (Person person : people) {
-                if (person.getAge() > oldestPerson.getAge()) {
-                    oldestPerson = person;
-                }
-            }
-            return oldestPerson;
+            return people.stream() // Convert collection to Stream
+                    .max(Comparator.comparing(Person::getAge)) // Compares people ages
+                    .get(); // Gets stream result
         }
 
     }
 
     public static class Sum {
         public static int calculate(List<Integer> numbers) {
-            int total = 0;
-            for (int number : numbers) {
-                total += number;
-            }
-            return total;
+            return numbers.stream() // Convert collection to Stream
+                    .reduce(0, (total, number) -> total + number); // Sum elements with 0 as starting value
         }
     }
 
     public static class Kids {
         public static Set<String> getKidNames(List<Person> people) {
-            Set<String> kids = new HashSet<>();
-            for (Person person : people) {
-                if (person.getAge() < 18) {
-                    kids.add(person.getName());
-                }
-            }
-            return kids;
+            return people.stream()
+                    .filter(person -> person.getAge() < 18) // Filter kids (under age of 18)
+                    .map(Person::getName) // Map Person elements to names
+                    .collect(toSet()); // Collect values to a Set
         }
     }
 
     public static class Grouping {
         public static Map<String, List<Person>> groupByNationality(List<Person> people) {
-            Map<String, List<Person>> map = new HashMap<>();
-            for (Person person : people) {
-                if (!map.containsKey(person.getNationality())) {
-                    map.put(person.getNationality(), new ArrayList<>());
-                }
-                map.get(person.getNationality()).add(person);
-            }
-            return map;
+            return people.stream() // Convert collection to Stream
+                    .collect(groupingBy(Person::getNationality)); // Group people by nationality
         }
     }
 
@@ -200,16 +174,9 @@ public class J04_StreamsBasicsTest {
 
 
         public static String namesToString(List<Person> people) {
-            String label = "Names: ";
-            StringBuilder sb = new StringBuilder(label);
-            for (Person person : people) {
-                if (sb.length() > label.length()) {
-                    sb.append(", ");
-                }
-                sb.append(person.getName());
-            }
-            sb.append(".");
-            return sb.toString();
+            return people.stream() // Convert collection to Stream
+                    .map(Person::getName) // Map Person to name
+                    .collect(joining(", ", "Names: ", ".")); // Join names
         }
 
     }
