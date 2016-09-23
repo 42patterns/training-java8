@@ -3,6 +3,7 @@ package com.example.foo.java8.funcset;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 public interface Sets {
@@ -29,47 +30,44 @@ public interface Sets {
      * Returns the intersection of the two given sets,
      * the set of all elements that are both in `s` or `t`.
      */
-    BiFunction<Set, Set, Set> intersect = (s, t) -> {
-        throw new UnsupportedOperationException("Not implemented");
-    };
-
+    BiFunction<Set, Set, Set> intersect = (s, t) ->
+        x -> contains.apply(s, x) && contains.apply(t,x);
 
     /**
      * Returns the difference of the two given sets,
      * the set of all elements of `s` that are not in `t`.
      */
-    BiFunction<Set, Set, Set> diff = (s, t) -> {
-        throw new UnsupportedOperationException("Not implemented");
-    };
+    BiFunction<Set, Set, Set> diff = (s, t) ->
+        x -> contains.apply(s, x) && !contains.apply(t, x);
 
     /**
      * Returns the subset of `s` for which `p` holds.
      */
-    BiFunction<Set, Predicate<Integer>, Set> filter = (s, p) -> {
-        throw new UnsupportedOperationException("Not implemented");
-    };
+    BiFunction<Set, Predicate<Integer>, Set> filter = (s, p) ->
+        x -> contains.apply(s, x) && p.test(x);
 
     /**
      * Returns whether all bounded integers within `s` satisfy `p`.
      */
-    BiFunction<Set, Predicate<Integer>, Boolean> forall = (s, p) -> {
-        throw new UnsupportedOperationException("Not implemented");
-    };
+    BiFunction<Set, Predicate<Integer>, Boolean> forall = (s, p) ->
+        IntStream.range(-1*BOUND, BOUND)
+            .filter( i-> contains.apply(s, i))
+            .allMatch(p::test);
 
     /**
      * Returns whether there exists a bounded integer within `s`
      * that satisfies `p`.
      */
-    BiFunction<Set, Predicate<Integer>, Boolean> exists = (s, p) -> {
-        throw new UnsupportedOperationException("Not implemented");
-    };
+    BiFunction<Set, Predicate<Integer>, Boolean> exists = (s, p) ->
+        IntStream.range(-1*BOUND, BOUND)
+            .filter( i-> contains.apply(s, i))
+            .anyMatch(p::test);
 
     /**
      * Returns a set transformed by applying `f` to each element of `s`.
      */
-    BiFunction<Set, Function<Integer, Integer>, Set> map = (s, f) -> {
-        throw new UnsupportedOperationException("Not implemented");
-    };
+    BiFunction<Set, Function<Integer, Integer>, Set> map = (s, f) ->
+        x -> exists.apply(s, i -> x == f.apply(i));
 
     default void printSet(Set s) {
         IntStream.range(BOUND * -1, BOUND)
