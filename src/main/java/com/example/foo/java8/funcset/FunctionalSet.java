@@ -23,7 +23,7 @@ public interface FunctionalSet extends Function<Integer, Boolean> {
      * Return infinite set of natural numbers
      */
     static FunctionalSet naturalNumbers() {
-        throw new UnsupportedOperationException("Not implemented");
+        return x -> x > 0;
     }
 
     /**
@@ -46,7 +46,7 @@ public interface FunctionalSet extends Function<Integer, Boolean> {
      * the set of all elements that are both in `this` or `other`.
      */
     default FunctionalSet intersect(FunctionalSet other) {
-        throw new UnsupportedOperationException("Not implemented");
+        return x -> this.contains(x) && other.contains(x);
     }
 
     /**
@@ -54,21 +54,23 @@ public interface FunctionalSet extends Function<Integer, Boolean> {
      * the set of all elements of `this` that are not in `other`.
      */
     default FunctionalSet diff(FunctionalSet other) {
-        throw new UnsupportedOperationException("Not implemented");
+        return x -> this.contains(x) && !other.contains(x);
     }
 
     /**
      * Returns the subset of `this` for which `p` holds.
      */
     default FunctionalSet filter(Predicate<Integer> p) {
-        throw new UnsupportedOperationException("Not implemented");
+        return x -> this.contains(x) && p.test(x);
     }
 
     /**
      * Returns whether all bounded integers within `this` satisfy `p`.
      */
     default Boolean forall(Predicate<Integer> p) {
-        throw new UnsupportedOperationException("Not implemented");
+        return IntStream.range(-1*BOUND, BOUND)
+                .filter(this::contains)
+                .allMatch(p::test);
     }
 
     /**
@@ -76,14 +78,16 @@ public interface FunctionalSet extends Function<Integer, Boolean> {
      * that satisfies `p`.
      */
     default Boolean exists(Predicate<Integer> p) {
-        throw new UnsupportedOperationException("Not implemented");
+        return IntStream.range(-1*BOUND, BOUND)
+                .filter(this::contains)
+                .anyMatch(p::test);
     }
 
     /**
      * Returns a set transformed by applying `f` to each element of `this`
      */
     default FunctionalSet map(Function<Integer, Integer> f) {
-        throw new UnsupportedOperationException("Not implemented");
+        return x -> exists(i -> x == f.apply(i));
     }
 
     default void print() {
