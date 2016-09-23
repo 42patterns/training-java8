@@ -27,7 +27,12 @@ public class LoremIpsum {
 	 * Case insensitive
 	 */
 	public static Map<String, Integer> wordCount(String text) {
-		throw new UnsupportedOperationException("wordCount()");
+        final List<String> words = splitWords(text);
+        Map<String, Integer> wordCount = new HashMap<>();
+        for (String word : words) {
+            wordCount.merge(word.toLowerCase(), 1, (x, one) -> x + one);
+        }
+        return wordCount;
 	}
 
 	private static List<String> splitWords(String text) {

@@ -5,7 +5,9 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 
+import static java.util.stream.Collectors.toList;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
@@ -22,7 +24,7 @@ public class J20_StringsTest {
 	}
 
 	private boolean onlyDigits(String phone) {
-		return true;
+		return phone.chars().allMatch(Character::isDigit);
 	}
 
 	@Test
@@ -35,7 +37,8 @@ public class J20_StringsTest {
 	}
 
 	private boolean anyNonAlphabetic(String s) {
-		return true;
+		return !s.chars().allMatch(Character::isAlphabetic);
+
 	}
 
 	/**
@@ -47,7 +50,7 @@ public class J20_StringsTest {
 		final List<String> ids = Arrays.asList("1", "2", "3", "4");
 
 		//when
-		final String joined = "";
+		final String joined = String.join(", ", ids);
 
 		//then
 		assertThat(joined).isEqualTo("1, 2, 3, 4");
@@ -59,7 +62,7 @@ public class J20_StringsTest {
 		final List<Integer> ids = Arrays.asList(1, 2, 3, 4);
 
 		//when
-		final String joined = "";
+		final String joined =  String.join(", ", ids.stream().map(Object::toString).collect(toList()));
 
 		//then
 		assertThat(joined).isEqualTo("1, 2, 3, 4");
@@ -76,9 +79,9 @@ public class J20_StringsTest {
 		String z = "Z";
 
 		//when
-		String joined = "";
+		String joined = new StringJoiner("-", "<", ">").add(x).add(y).add(z).toString();
 
-		//then
+        //then
 		assertThat(joined).isEqualTo("<X-Y-Z>");
 	}
 

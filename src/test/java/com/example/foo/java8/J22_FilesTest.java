@@ -2,6 +2,7 @@ package com.example.foo.java8;
 
 import com.example.foo.java8.people.Person;
 import com.example.foo.java8.people.PersonDao;
+import com.example.foo.java8.people.Sex;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.example.foo.java8.people.Sex.FEMALE;
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -39,6 +42,7 @@ public class J22_FilesTest {
 		final List<String> names = people.stream().
 				map(Person::getName).
 				distinct().
+				sorted().
 				collect(toList());
 
 		assertThat(names).startsWith("Aleksandar", "Alexander", "Alexandra", "Ali", "Alice");
@@ -52,6 +56,8 @@ public class J22_FilesTest {
 		final List<Person> people = dao.loadPeopleDatabase();
 
 		final List<String> names = people.stream()
+                .filter(p -> p.getSex() == FEMALE)
+                .sorted(comparing(Person::getHeight).reversed())
 				.map(Person::getName)
 				.collect(toList());
 
@@ -63,6 +69,8 @@ public class J22_FilesTest {
 		final List<Person> people = dao.loadPeopleDatabase();
 
 		final List<String> names = people.stream().
+                sorted(comparing(Person::getName).
+                        thenComparing(Person::getDateOfBirth)).
 				map(p -> p.getName() + '-' + p.getDateOfBirth().getYear()).
 				collect(toList());
 
@@ -87,8 +95,20 @@ public class J22_FilesTest {
 		assertThat(found.isPresent()).isTrue();
 	}
 
-	private static Stream<Path> filesInDir(Path dir) {
-		throw new UnsupportedOperationException("filesInDir()");
-	}
+    private static Stream<Path> filesInDir(Path dir) {
+        return listFiles(dir)
+                .flatMap(path ->
+                        path.toFile().isDirectory() ?
+                                filesInDir(path) :
+                                Stream.of(path));
+    }
+
+    private static Stream<Path> listFiles(Path dir) {
+        try {
+            return Files.list(dir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
