@@ -20,8 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
@@ -52,49 +55,27 @@ public class J05c_StreamsCsvParseTest {
      * This is a "public API" do not change signature of this class
      */
     public List<Category> getMatchingCategories(String catName) {
-        List<Category> allCategories = getCategories();
-        List<Category> catNames = new ArrayList<>();
+        try (BufferedReader reader = open("/shop_categories.csv");
+             Stream<String> lines = reader.lines()) {
 
-        for (int i = 0; i < allCategories.size(); i++) {
-            int counter = 0;
-            if (allCategories.get(i).getName().toLowerCase().contains(catName.toLowerCase())) {
-                catNames.add(allCategories.get(i));
-                counter++;
-                System.out.println("Found " + counter + " matching categories, that contains " + catName + "\n" +
-                        "Category " + allCategories.get(i) + " matches the seaarch criteria");
-            }
-        }
-        return catNames;
-    }
+            return lines
+                    .skip(1)
+                    .map(s -> s.split(";"))
+                    .map(a -> new Category(
+                            Integer.parseInt(a[0]),
+                            a[1],
+                            Integer.parseInt(a[2]),
+                            Integer.parseInt(a[3]),
+                            Boolean.parseBoolean(a[4])))
+                    .filter(category -> category.getName().toLowerCase().contains(catName.toLowerCase()))
+                    .peek(category -> System.out.println("Found category " + category + " matches the search criteria"))
+                    .collect(Collectors.toList());
 
-    /**
-     * This is a private method, signature can change
-     * Hint: how will performance differ when Stream is returned
-     */
-    private List<Category> getCategories() {
-        List<Category> allCategories = new ArrayList<>();
-
-        try (BufferedReader reader = open("/shop_categories.csv")) {
-
-            //skip first CSV line
-            reader.readLine();
-
-            String line;
-            while( (line = reader.readLine()) != null) {
-                String[] el = line.split(";");
-                allCategories.add(new Category(
-                        Integer.parseInt(el[0]),
-                        el[1],
-                        Integer.parseInt(el[2]),
-                        Integer.parseInt(el[3]),
-                        Boolean.parseBoolean(el[4])));
-
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return allCategories;
+        return Collections.emptyList();
     }
 
     private BufferedReader open(String file) throws IOException {
