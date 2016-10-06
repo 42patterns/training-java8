@@ -38,7 +38,8 @@ public class J22b_FilesComsumeTest {
      */
     private String readFromFile(String filename) {
         try {
-            return new Scanner(Paths.get(this.getClass().getResource(FILENAME).toURI())).useDelimiter("\\A").nextLine();
+//            return new Scanner(Paths.get(this.getClass().getResource(FILENAME).toURI())).useDelimiter("\\A").nextLine();
+            return new String(Files.readAllBytes(Paths.get(this.getClass().getResource(FILENAME).toURI())));
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
             return new String();
