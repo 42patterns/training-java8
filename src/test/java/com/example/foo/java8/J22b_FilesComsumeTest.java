@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Scanner;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -37,17 +38,7 @@ public class J22b_FilesComsumeTest {
      */
     private String readFromFile(String filename) {
         try {
-            BufferedReader reader = new BufferedReader(
-                    new FileReader(
-                            Paths.get(
-                                    this.getClass().getResource(FILENAME).toURI()).toFile()));
-            StringBuilder builder = new StringBuilder();
-            String l;
-            while((l = reader.readLine()) != null) {
-                builder.append(l);
-            }
-
-            return builder.toString();
+            return new Scanner(Paths.get(this.getClass().getResource(FILENAME).toURI())).useDelimiter("\\A").nextLine();
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
             return new String();
