@@ -29,6 +29,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.example.foo.java8.people.Sex.FEMALE;
 import static com.example.foo.java8.people.Sex.MALE;
@@ -64,28 +66,20 @@ public class J05c_StreamsXmlParseTest {
      * This is a "public API" do not change signature of this class
      */
     public List<Category> getMatchingCategories(String catName) {
-        List<Category> allCategories = getCategories();
-        List<Category> catNames = new ArrayList<Category>();
+        Stream<Category> allCategories = getCategories();
 
-        for (int i = 0; i < allCategories.size(); i++) {
-            int counter = 0;
-            if (allCategories.get(i).getName().toLowerCase().contains(catName.toLowerCase())) {
-                catNames.add(allCategories.get(i));
-                counter++;
-                System.out.println("Found " + counter + " matching categories, that contains " + catName + "\n" +
-                        "Category " + allCategories.get(i) + " matches the seaarch criteria");
-            }
-        }
-        return catNames;
+        return allCategories
+                .parallel()
+                .filter(category -> category.getName().toLowerCase().contains(catName.toLowerCase()))
+                .peek(category -> System.out.println("Found category " + category + " matches the search criteria"))
+                .collect(toList());
     }
 
     /**
      * This is a private method, signature can change
      * Hint: how will performance differ when Stream is returned
      */
-    private List<Category> getCategories() {
-        List<Category> allCategories = new ArrayList<>();
-
+    private Stream<Category> getCategories() {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         try (InputStream stream = open("/shot_categories.xml")) {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -94,31 +88,24 @@ public class J05c_StreamsXmlParseTest {
             //recommended to normalize
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName("ns1:item");
-            System.out.println("We found " + nList.getLength() + " elements.");
 
-            for (int temp = 0; temp < nList.getLength(); temp++) {
-                Node nNode = nList.item(temp);
-                //System.out.println("\nCurrent Element :" + nNode.getNodeName());
+            return IntStream.range(0, nList.getLength())
+                    .mapToObj(nList::item)
+                    .filter(n -> n.getNodeType() == Node.ELEMENT_NODE)
+                    .map(n -> (Element) n)
+                    .map(e -> new Category(Integer.parseInt(e.getElementsByTagName("ns1:catId").item(0).getTextContent()),
+                            e.getElementsByTagName("ns1:catName").item(0).getTextContent(),
+                            Integer.parseInt(e.getElementsByTagName("ns1:catParent").item(0).getTextContent()),
+                            Integer.parseInt(e.getElementsByTagName("ns1:catPosition").item(0).getTextContent()),
+                            Boolean.parseBoolean(e.getElementsByTagName("ns1:catIsProductCatalogueEnabled").item(0).getTextContent())));
 
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-
-                    Element eElement = (Element) nNode;
-                    //add elements to Category class, create objects and parse to int
-                    allCategories.add(new Category(
-                            Integer.parseInt(eElement.getElementsByTagName("ns1:catId").item(0).getTextContent()),
-                            eElement.getElementsByTagName("ns1:catName").item(0).getTextContent(),
-                            Integer.parseInt(eElement.getElementsByTagName("ns1:catParent").item(0).getTextContent()),
-                            Integer.parseInt(eElement.getElementsByTagName("ns1:catPosition").item(0).getTextContent()),
-                            Boolean.parseBoolean(eElement.getElementsByTagName("ns1:catIsProductCatalogueEnabled").item(0).getTextContent())));
-                }
-            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SAXException | ParserConfigurationException e) {
             e.printStackTrace();
         }
 
-        return allCategories;
+        return Stream.empty();
     }
 
     private InputStream open(String s) throws IOException {
